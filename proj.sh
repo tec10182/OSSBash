@@ -151,6 +151,8 @@ done
 ;;
 
 9)
+echo "Bye!"
 exit
+;;
 esac
 done
