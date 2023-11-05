@@ -120,34 +120,21 @@ fi
 
 uid=$(cat $3| awk -F\| '$2>=20&&$2<=29&&$4=="programmer"{print $1}')
 
-line=1
-while :
-do
-    mid=$(cat $1 | awk -F\| '{print $1}'| sort -n | sed -n "${line}p")
-    if [ -z $mid ]
-    then break
-    fi
-    ((line++))
 
-
-    tmp=$(cat $2 | awk -v uid="$uid" -v mid=$mid '$2==mid{split(uid,a,"\n");
+cat $2 | awk -v uid="$uid" -v total=$total_data '{split(uid,a,"\n");
         check=0;
         for(v in a) 
         {
             if($1 == a[v]) {check=1;}
         }
-        if(check==1){sum+=$3; n+=1;}
+        if(check==1){rate[$2]+=$3; sum[$2]+=1;}
     } END {
-        if(n!=0)
-            printf "%.5f\n", sum/n
-        }'  | sed -E 's/(^[0-9]+\.0*[1-9]+)0*$/\1/' | sed -E 's/\.00000//')
 
-    if [ -z $tmp ]
-    then
-    continue
-    fi
-    echo "${mid} ${tmp}"
-done
+        for(i=1; i<=total; i++){
+                if(sum[i]!=0)
+                    printf "%d %.5f\n",i,rate[i]/sum[i]
+            } 
+        }'| sed -E 's/([0-9]+\.0*[1-9]+)0*$/\1/' | sed -E 's/\.00000//'
 ;;
 
 9)
